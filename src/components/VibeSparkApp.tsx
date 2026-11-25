@@ -1,18 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
-import {
-  Bookmark,
-  BookOpen,
-  Dices,
-  DollarSign,
-  Flame,
-  Radio,
-  Sparkles,
-  Trophy,
-  X,
-  Zap,
-} from "lucide-react";
+import { ChevronDown, Dices, SlidersHorizontal, Sparkles, X } from "lucide-react";
 import {
   AUDIENCES,
   AudienceId,
@@ -32,6 +21,10 @@ import {
   TrendFeedResponse,
   TrendSignal,
   VibeBlueprint,
+  getAudienceLabel,
+  getFormatLabel,
+  getLevelLabel,
+  getTimeframeLabel,
 } from "@/lib/types";
 import { BlueprintCard } from "./BlueprintCard";
 import { TrendRadar } from "./TrendRadar";
@@ -40,38 +33,7 @@ import { SavedBoard } from "./SavedBoard";
 type ActiveTab = "generator" | "radar" | "saved";
 
 const STORAGE_KEY = "vibespark_saved_blueprints_v1";
-
-const MODE_CARDS: {
-  id: IdeaMode;
-  icon: typeof DollarSign;
-  ringActive: string;
-  iconBg: string;
-}[] = [
-  {
-    id: "money",
-    icon: DollarSign,
-    ringActive: "border-emerald-400/60 bg-emerald-500/12 shadow-lg shadow-emerald-950/40",
-    iconBg: "bg-emerald-500/15 text-emerald-300",
-  },
-  {
-    id: "hackathon",
-    icon: Trophy,
-    ringActive: "border-amber-400/60 bg-amber-500/12 shadow-lg shadow-amber-950/40",
-    iconBg: "bg-amber-500/15 text-amber-300",
-  },
-  {
-    id: "study",
-    icon: BookOpen,
-    ringActive: "border-sky-400/60 bg-sky-500/12 shadow-lg shadow-sky-950/40",
-    iconBg: "bg-sky-500/15 text-sky-300",
-  },
-  {
-    id: "challenge",
-    icon: Zap,
-    ringActive: "border-rose-400/60 bg-rose-500/12 shadow-lg shadow-rose-950/40",
-    iconBg: "bg-rose-500/15 text-rose-300",
-  },
-];
+const ALL_MODES: IdeaMode[] = ["money", "hackathon", "study", "challenge"];
 
 function randomFrom<T>(list: T[]): T {
   return list[Math.floor(Math.random() * list.length)];
@@ -80,27 +42,28 @@ function randomFrom<T>(list: T[]): T {
 export function VibeSparkApp() {
   const [activeTab, setActiveTab] = useState<ActiveTab>("generator");
 
-  // Filter state
+  // Filters
   const [mode, setMode] = useState<IdeaMode>("money");
   const [niche, setNiche] = useState<NicheId>("all");
   const [format, setFormat] = useState<ProductFormat>("any");
   const [timeframe, setTimeframe] = useState<TimeframeId>("48h");
   const [level, setLevel] = useState<SkillLevel>("intermediate");
   const [audience, setAudience] = useState<AudienceId>("any");
+  const [showAdvanced, setShowAdvanced] = useState(false);
   const [focusedTrend, setFocusedTrend] = useState<TrendSignal | null>(null);
 
-  // Generation state
+  // Generation
   const [blueprint, setBlueprint] = useState<VibeBlueprint | null>(null);
   const [seenTrendIds, setSeenTrendIds] = useState<string[]>([]);
   const [isGenerating, setIsGenerating] = useState(false);
   const [isSpinning, setIsSpinning] = useState(false);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
 
-  // Radar state
+  // Radar
   const [trendFeed, setTrendFeed] = useState<TrendFeedResponse | null>(null);
   const [isLoadingTrends, setIsLoadingTrends] = useState(false);
 
-  // Saved blueprints (localStorage)
+  // Saved
   const [saved, setSaved] = useState<SavedBlueprint[]>([]);
 
   useEffect(() => {
@@ -111,7 +74,7 @@ export function VibeSparkApp() {
         if (Array.isArray(parsed)) setSaved(parsed);
       }
     } catch {
-      // ignore localStorage errors
+      // ignore
     }
   }, []);
 
@@ -133,7 +96,7 @@ export function VibeSparkApp() {
         setTrendFeed(data);
       }
     } catch {
-      // mantém estado atual se falhar
+      // ignore
     } finally {
       setIsLoadingTrends(false);
     }
@@ -191,7 +154,7 @@ export function VibeSparkApp() {
           setSeenTrendIds((prev) => [...prev.slice(-10), data.blueprint.sources[0].id]);
         }
       } catch (err) {
-        setErrorMsg(err instanceof Error ? err.message : "Erro ao gerar Blueprint.");
+        setErrorMsg(err instanceof Error ? err.message : "Erro ao gerar.");
       } finally {
         setIsGenerating(false);
       }
@@ -206,13 +169,12 @@ export function VibeSparkApp() {
 
     const concreteNiches = NICHES.filter((n) => n.id !== "all").map((n) => n.id);
     const concreteFormats = FORMATS.filter((f) => f.id !== "any").map((f) => f.id);
-    const allModes: IdeaMode[] = ["money", "hackathon", "study", "challenge"];
     const allTimeframes: TimeframeId[] = ["2h", "1d", "48h", "1w"];
 
     let ticks = 0;
     const interval = setInterval(() => {
       ticks += 1;
-      const nextMode = randomFrom(allModes);
+      const nextMode = randomFrom(ALL_MODES);
       const nextNiche = randomFrom(concreteNiches);
       const nextFormat = randomFrom(concreteFormats);
       const nextTime = randomFrom(allTimeframes);
@@ -233,7 +195,7 @@ export function VibeSparkApp() {
           focusTrendId: "",
         });
       }
-    }, 95);
+    }, 85);
   }
 
   function handleGenerateFromTrend(signal: TrendSignal) {
@@ -282,59 +244,53 @@ export function VibeSparkApp() {
     ? saved.some((s) => s.blueprint.id === blueprint.id)
     : false;
 
-  return (
-    <div className="min-h-screen flex flex-col">
-      {/* Top Navbar */}
-      <header className="sticky top-0 z-30 border-b border-white/8 bg-[#0a0c10]/85 backdrop-blur-xl">
-        <div className="mx-auto max-w-6xl px-4 sm:px-6 h-16 flex items-center justify-between gap-4">
-          <div className="flex items-center gap-3">
-            <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-to-br from-amber-400 to-emerald-400 text-zinc-950 shadow-lg shadow-amber-500/20">
-              <Sparkles className="h-5 w-5 stroke-[2.3]" />
-            </div>
-            <div>
-              <div className="font-display text-lg font-bold tracking-tight text-white leading-none">
-                VibeSpark
-              </div>
-              <div className="text-[11px] text-zinc-400 leading-none mt-1">
-                Gerador de VibeCoding
-              </div>
-            </div>
-          </div>
+  const advancedSummary = [
+    format !== "any" ? getFormatLabel(format) : null,
+    getTimeframeLabel(timeframe),
+    getLevelLabel(level),
+    audience !== "any" ? getAudienceLabel(audience) : null,
+  ]
+    .filter(Boolean)
+    .join(" · ");
 
-          {/* Navigation tabs */}
-          <nav className="flex items-center gap-1 rounded-xl border border-white/8 bg-white/[0.03] p-1">
+  return (
+    <div className="min-h-screen bg-black text-zinc-100 flex flex-col">
+      {/* Minimal Header */}
+      <header className="border-b border-zinc-900">
+        <div className="mx-auto max-w-4xl px-5 h-14 flex items-center justify-between gap-4">
+          <button
+            type="button"
+            onClick={() => setActiveTab("generator")}
+            className="font-display text-sm font-semibold tracking-tight text-white cursor-pointer"
+          >
+            VibeSpark
+          </button>
+
+          <nav className="flex items-center gap-6 text-xs sm:text-sm">
             <button
               type="button"
               onClick={() => setActiveTab("generator")}
-              className={`inline-flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs sm:text-sm font-medium transition cursor-pointer ${
+              className={`transition cursor-pointer ${
                 activeTab === "generator"
-                  ? "bg-amber-400 text-zinc-950 font-semibold"
-                  : "text-zinc-300 hover:text-white"
+                  ? "text-white font-medium"
+                  : "text-zinc-500 hover:text-zinc-200"
               }`}
             >
-              <Sparkles className="h-3.5 w-3.5" />
               Gerador
             </button>
 
             <button
               type="button"
               onClick={() => setActiveTab("radar")}
-              className={`inline-flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs sm:text-sm font-medium transition cursor-pointer ${
+              className={`inline-flex items-center gap-1.5 transition cursor-pointer ${
                 activeTab === "radar"
-                  ? "bg-amber-400 text-zinc-950 font-semibold"
-                  : "text-zinc-300 hover:text-white"
+                  ? "text-white font-medium"
+                  : "text-zinc-500 hover:text-zinc-200"
               }`}
             >
-              <Radio className="h-3.5 w-3.5" />
-              Radar
+              <span>Radar</span>
               {trendFeed && (
-                <span
-                  className={`rounded-full px-1.5 py-0.2 text-[10px] font-mono ${
-                    activeTab === "radar"
-                      ? "bg-black/15 text-zinc-950"
-                      : "bg-emerald-500/20 text-emerald-300"
-                  }`}
-                >
+                <span className="font-mono text-[11px] text-zinc-600">
                   {trendFeed.signals.length}
                 </span>
               )}
@@ -343,119 +299,82 @@ export function VibeSparkApp() {
             <button
               type="button"
               onClick={() => setActiveTab("saved")}
-              className={`inline-flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs sm:text-sm font-medium transition cursor-pointer ${
+              className={`inline-flex items-center gap-1.5 transition cursor-pointer ${
                 activeTab === "saved"
-                  ? "bg-amber-400 text-zinc-950 font-semibold"
-                  : "text-zinc-300 hover:text-white"
+                  ? "text-white font-medium"
+                  : "text-zinc-500 hover:text-zinc-200"
               }`}
             >
-              <Bookmark className="h-3.5 w-3.5" />
-              Salvos
+              <span>Salvos</span>
               {saved.length > 0 && (
-                <span
-                  className={`rounded-full px-1.5 py-0.2 text-[10px] font-mono ${
-                    activeTab === "saved"
-                      ? "bg-black/15 text-zinc-950"
-                      : "bg-white/10 text-zinc-200"
-                  }`}
-                >
+                <span className="font-mono text-[11px] text-zinc-600">
                   {saved.length}
                 </span>
               )}
             </button>
           </nav>
 
-          {/* Live radar indicator */}
-          <div className="hidden md:flex items-center gap-2 rounded-full border border-emerald-500/25 bg-emerald-500/10 px-3 py-1 text-xs text-emerald-200">
-            <span className="h-2 w-2 rounded-full bg-emerald-400 animate-live-dot" />
-            {trendFeed ? (
-              <span>
-                {trendFeed.liveCount > 0
-                  ? `${trendFeed.liveCount} sinais ao vivo`
-                  : "Modo curado ativo"}
-              </span>
-            ) : (
-              <span>Conectando radar...</span>
-            )}
+          <div className="hidden sm:flex items-center gap-2 font-mono text-[11px] text-zinc-500">
+            <span
+              className={`h-1.5 w-1.5 rounded-full ${
+                trendFeed && trendFeed.liveCount > 0 ? "bg-emerald-500" : "bg-zinc-600"
+              }`}
+            />
+            <span>
+              {trendFeed
+                ? trendFeed.liveCount > 0
+                  ? `${trendFeed.liveCount} ao vivo`
+                  : "curado"
+                : "..."}
+            </span>
           </div>
         </div>
       </header>
 
-      {/* Main Content */}
-      <main className="flex-1 mx-auto w-full max-w-6xl px-4 sm:px-6 py-8 sm:py-10">
+      {/* Main */}
+      <main className="flex-1 mx-auto w-full max-w-4xl px-5 py-12 sm:py-16">
         {activeTab === "generator" && (
-          <div className="space-y-8">
-            {/* Hero intro */}
-            <section className="max-w-3xl space-y-3">
-              <div className="inline-flex items-center gap-2 rounded-full border border-amber-400/25 bg-amber-400/10 px-3 py-1 text-xs font-medium text-amber-200">
-                <Flame className="h-3.5 w-3.5" />
-                Conectado ao Hacker News, GitHub Trending, Reddit & Hugging Face
-              </div>
-              <h1 className="font-display text-3xl sm:text-5xl font-bold tracking-tight text-white leading-[1.08]">
-                Pare de encarar a tela em branco.{" "}
-                <span className="bg-gradient-to-r from-amber-300 via-amber-200 to-emerald-300 bg-clip-text text-transparent">
-                  Sorteie ideias reais
-                </span>{" "}
-                para vibecodar hoje.
+          <div className="space-y-12">
+            {/* Hero */}
+            <section className="space-y-2.5">
+              <h1 className="font-display text-3xl sm:text-4xl font-semibold tracking-tight text-white">
+                Ideias atuais para vibecodar.
               </h1>
-              <p className="text-sm sm:text-base text-zinc-400 leading-relaxed">
-                Escolha se quer lucro, hackathon, estudo ou um desafio rápido. O VibeSpark
-                cruza tendências raspadas hoje com o nicho selecionado e entrega o Blueprint
-                completo + Prompt Mestre pronto para colar na sua IA.
+              <p className="text-sm sm:text-base text-zinc-500 max-w-xl">
+                Escolha o objetivo e o nicho. Cruzamos tendências reais de hoje para montar
+                seu escopo MVP e o prompt pronto.
               </p>
             </section>
 
-            {/* Configurator Panel */}
-            <section className="surface-card rounded-2xl p-5 sm:p-6 space-y-6">
-              {/* 1. Mode Selection */}
-              <div className="space-y-2.5">
-                <label className="text-xs font-semibold uppercase tracking-wider text-zinc-400">
-                  1. Qual é o seu objetivo agora?
-                </label>
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
-                  {MODE_CARDS.map((card) => {
-                    const meta = MODE_META[card.id];
-                    const Icon = card.icon;
-                    const active = mode === card.id;
-                    return (
-                      <button
-                        key={card.id}
-                        type="button"
-                        onClick={() => setMode(card.id)}
-                        className={`text-left rounded-xl border p-4 transition cursor-pointer ${
-                          active
-                            ? card.ringActive
-                            : "border-white/8 bg-white/[0.02] hover:border-white/18 hover:bg-white/[0.04]"
-                        }`}
-                      >
-                        <div className="flex items-center justify-between gap-2">
-                          <span
-                            className={`flex h-8 w-8 items-center justify-center rounded-lg ${card.iconBg}`}
-                          >
-                            <Icon className="h-4 w-4" />
-                          </span>
-                          {active && (
-                            <span className="h-2 w-2 rounded-full bg-white" />
-                          )}
-                        </div>
-                        <div className="mt-3 font-display text-sm font-bold text-white">
-                          {meta.label}
-                        </div>
-                        <p className="mt-1 text-xs text-zinc-400 leading-relaxed">
-                          {meta.description}
-                        </p>
-                      </button>
-                    );
-                  })}
-                </div>
+            {/* Minimal Controls */}
+            <section className="space-y-6">
+              {/* Mode segmented control */}
+              <div className="flex flex-wrap gap-1.5 border-b border-zinc-900 pb-6">
+                {ALL_MODES.map((m) => {
+                  const active = mode === m;
+                  return (
+                    <button
+                      key={m}
+                      type="button"
+                      onClick={() => setMode(m)}
+                      className={`rounded-md px-3.5 py-2 text-xs sm:text-sm transition cursor-pointer ${
+                        active
+                          ? "bg-white text-black font-medium"
+                          : "border border-zinc-800/80 text-zinc-400 hover:border-zinc-600 hover:text-zinc-100"
+                      }`}
+                    >
+                      {MODE_META[m].label}
+                    </button>
+                  );
+                })}
               </div>
 
-              {/* 2. Niche Pills */}
+              {/* Niche selector */}
               <div className="space-y-2.5">
-                <label className="text-xs font-semibold uppercase tracking-wider text-zinc-400">
-                  2. Filtrar por nicho / setor
-                </label>
-                <div className="flex flex-wrap gap-2">
+                <div className="font-mono text-[11px] uppercase tracking-widest text-zinc-600">
+                  Nicho
+                </div>
+                <div className="flex flex-wrap gap-1.5">
                   {NICHES.map((n) => {
                     const active = niche === n.id;
                     return (
@@ -463,10 +382,10 @@ export function VibeSparkApp() {
                         key={n.id}
                         type="button"
                         onClick={() => setNiche(n.id)}
-                        className={`rounded-full border px-3.5 py-1.5 text-xs font-medium transition cursor-pointer ${
+                        className={`rounded-full px-3 py-1 text-xs transition cursor-pointer ${
                           active
-                            ? "border-amber-400 bg-amber-400 text-zinc-950 font-semibold"
-                            : "border-white/10 bg-white/[0.03] text-zinc-300 hover:border-white/25 hover:text-white"
+                            ? "bg-zinc-100 text-black font-medium"
+                            : "border border-zinc-900 text-zinc-500 hover:border-zinc-700 hover:text-zinc-200"
                         }`}
                       >
                         {n.label}
@@ -476,131 +395,134 @@ export function VibeSparkApp() {
                 </div>
               </div>
 
-              {/* 3. Fine-tuning selectors */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 pt-1">
-                <div className="space-y-1.5">
-                  <label className="text-[11px] font-semibold uppercase tracking-wider text-zinc-400">
-                    Formato
-                  </label>
-                  <select
-                    value={format}
-                    onChange={(e) => setFormat(e.target.value as ProductFormat)}
-                    className="w-full rounded-xl border border-white/10 bg-[#10141d] px-3 py-2.5 text-sm text-zinc-100 focus:border-amber-400/60 focus:outline-none"
-                  >
-                    {FORMATS.map((f) => (
-                      <option key={f.id} value={f.id}>
-                        {f.label}
-                      </option>
-                    ))}
-                  </select>
-                </div>
+              {/* Collapsible advanced filters */}
+              <div className="space-y-3">
+                <button
+                  type="button"
+                  onClick={() => setShowAdvanced((v) => !v)}
+                  className="inline-flex items-center gap-2 text-xs text-zinc-500 hover:text-zinc-200 transition cursor-pointer"
+                >
+                  <SlidersHorizontal className="h-3.5 w-3.5" />
+                  <span>Filtros avançados</span>
+                  <span className="font-mono text-[11px] text-zinc-600">
+                    ({advancedSummary})
+                  </span>
+                  <ChevronDown
+                    className={`h-3.5 w-3.5 transition-transform ${
+                      showAdvanced ? "rotate-180" : ""
+                    }`}
+                  />
+                </button>
 
-                <div className="space-y-1.5">
-                  <label className="text-[11px] font-semibold uppercase tracking-wider text-zinc-400">
-                    Tempo disponível
-                  </label>
-                  <select
-                    value={timeframe}
-                    onChange={(e) => setTimeframe(e.target.value as TimeframeId)}
-                    className="w-full rounded-xl border border-white/10 bg-[#10141d] px-3 py-2.5 text-sm text-zinc-100 focus:border-amber-400/60 focus:outline-none"
-                  >
-                    {TIMEFRAMES.map((t) => (
-                      <option key={t.id} value={t.id}>
-                        {t.label}
-                      </option>
-                    ))}
-                  </select>
-                </div>
+                {showAdvanced && (
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 pt-1">
+                    <select
+                      value={format}
+                      onChange={(e) => setFormat(e.target.value as ProductFormat)}
+                      aria-label="Formato"
+                      className="rounded-md border border-zinc-800 bg-black px-3 py-2 text-xs text-zinc-300 focus:border-zinc-500 focus:outline-none"
+                    >
+                      {FORMATS.map((f) => (
+                        <option key={f.id} value={f.id} className="bg-black">
+                          {f.label}
+                        </option>
+                      ))}
+                    </select>
 
-                <div className="space-y-1.5">
-                  <label className="text-[11px] font-semibold uppercase tracking-wider text-zinc-400">
-                    Nível técnico
-                  </label>
-                  <select
-                    value={level}
-                    onChange={(e) => setLevel(e.target.value as SkillLevel)}
-                    className="w-full rounded-xl border border-white/10 bg-[#10141d] px-3 py-2.5 text-sm text-zinc-100 focus:border-amber-400/60 focus:outline-none"
-                  >
-                    {LEVELS.map((l) => (
-                      <option key={l.id} value={l.id}>
-                        {l.label}
-                      </option>
-                    ))}
-                  </select>
-                </div>
+                    <select
+                      value={timeframe}
+                      onChange={(e) => setTimeframe(e.target.value as TimeframeId)}
+                      aria-label="Tempo"
+                      className="rounded-md border border-zinc-800 bg-black px-3 py-2 text-xs text-zinc-300 focus:border-zinc-500 focus:outline-none"
+                    >
+                      {TIMEFRAMES.map((t) => (
+                        <option key={t.id} value={t.id} className="bg-black">
+                          {t.label}
+                        </option>
+                      ))}
+                    </select>
 
-                <div className="space-y-1.5">
-                  <label className="text-[11px] font-semibold uppercase tracking-wider text-zinc-400">
-                    Público-alvo
-                  </label>
-                  <select
-                    value={audience}
-                    onChange={(e) => setAudience(e.target.value as AudienceId)}
-                    className="w-full rounded-xl border border-white/10 bg-[#10141d] px-3 py-2.5 text-sm text-zinc-100 focus:border-amber-400/60 focus:outline-none"
-                  >
-                    {AUDIENCES.map((a) => (
-                      <option key={a.id} value={a.id}>
-                        {a.label}
-                      </option>
-                    ))}
-                  </select>
-                </div>
+                    <select
+                      value={level}
+                      onChange={(e) => setLevel(e.target.value as SkillLevel)}
+                      aria-label="Nível"
+                      className="rounded-md border border-zinc-800 bg-black px-3 py-2 text-xs text-zinc-300 focus:border-zinc-500 focus:outline-none"
+                    >
+                      {LEVELS.map((l) => (
+                        <option key={l.id} value={l.id} className="bg-black">
+                          {l.label}
+                        </option>
+                      ))}
+                    </select>
+
+                    <select
+                      value={audience}
+                      onChange={(e) => setAudience(e.target.value as AudienceId)}
+                      aria-label="Público"
+                      className="rounded-md border border-zinc-800 bg-black px-3 py-2 text-xs text-zinc-300 focus:border-zinc-500 focus:outline-none"
+                    >
+                      {AUDIENCES.map((a) => (
+                        <option key={a.id} value={a.id} className="bg-black">
+                          {a.label}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                )}
               </div>
 
-              {/* Focused Trend pill if user selected one from Radar */}
+              {/* Focused Trend pill */}
               {focusedTrend && (
-                <div className="flex items-center justify-between gap-3 rounded-xl border border-emerald-400/30 bg-emerald-500/10 px-4 py-2.5 text-xs text-emerald-100">
+                <div className="flex items-center justify-between gap-3 rounded-md border border-zinc-800 bg-zinc-950 px-3 py-2 text-xs text-zinc-300">
                   <div className="min-w-0 truncate">
-                    <span className="font-semibold text-emerald-300">
-                      Tendência fixada ({focusedTrend.sourceLabel}):
-                    </span>{" "}
+                    <span className="font-mono text-zinc-500 mr-2">
+                      [{focusedTrend.sourceLabel}]
+                    </span>
                     {focusedTrend.title}
                   </div>
                   <button
                     type="button"
                     onClick={() => setFocusedTrend(null)}
-                    className="shrink-0 rounded-md p-1 hover:bg-white/10 cursor-pointer"
-                    title="Remover tendência fixada"
+                    className="text-zinc-500 hover:text-white cursor-pointer"
+                    title="Limpar tendência fixada"
                   >
                     <X className="h-3.5 w-3.5" />
                   </button>
                 </div>
               )}
 
-              {/* Primary CTAs */}
-              <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 pt-2">
+              {/* Primary Actions */}
+              <div className="flex flex-wrap items-center gap-3 pt-1">
                 <button
                   type="button"
                   onClick={() => runGenerate()}
                   disabled={isGenerating || isSpinning}
-                  className="flex-1 inline-flex items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-amber-400 to-amber-300 px-6 py-3.5 text-sm sm:text-base font-bold text-zinc-950 shadow-lg shadow-amber-500/20 hover:from-amber-300 hover:to-amber-200 transition cursor-pointer disabled:opacity-60"
+                  className="inline-flex items-center gap-2 rounded-md bg-white px-5 py-2.5 text-sm font-medium text-black hover:bg-zinc-200 transition cursor-pointer disabled:opacity-50"
                 >
-                  <Sparkles className={`h-5 w-5 ${isGenerating ? "animate-spin" : ""}`} />
-                  {isGenerating
-                    ? "Sintetizando Vibe Blueprint..."
-                    : "Gerar Vibe Blueprint"}
+                  <Sparkles className={`h-4 w-4 ${isGenerating ? "animate-spin" : ""}`} />
+                  {isGenerating ? "Gerando..." : "Gerar ideia"}
                 </button>
 
                 <button
                   type="button"
                   onClick={handleRoulette}
                   disabled={isGenerating || isSpinning}
-                  className="inline-flex items-center justify-center gap-2 rounded-xl border border-emerald-400/35 bg-emerald-500/12 px-5 py-3.5 text-sm font-semibold text-emerald-200 hover:bg-emerald-500/22 transition cursor-pointer disabled:opacity-60"
+                  className="inline-flex items-center gap-2 rounded-md border border-zinc-800 px-4 py-2.5 text-sm text-zinc-300 hover:border-zinc-500 hover:text-white transition cursor-pointer disabled:opacity-50"
                 >
-                  <Dices className={`h-5 w-5 ${isSpinning ? "animate-spin" : ""}`} />
-                  {isSpinning ? "Girando roleta..." : "Roleta (Me Surpreenda)"}
+                  <Dices className={`h-4 w-4 ${isSpinning ? "animate-spin" : ""}`} />
+                  {isSpinning ? "Sorteando..." : "Roleta"}
                 </button>
               </div>
 
               {errorMsg && (
-                <div className="rounded-xl border border-rose-500/30 bg-rose-500/10 px-4 py-3 text-sm text-rose-200">
+                <p className="text-xs text-zinc-400 border-l-2 border-zinc-600 pl-3">
                   {errorMsg}
-                </div>
+                </p>
               )}
             </section>
 
-            {/* Generated Result or Empty State */}
-            {blueprint ? (
+            {/* Result */}
+            {blueprint && (
               <BlueprintCard
                 blueprint={blueprint}
                 isSaved={isCurrentSaved}
@@ -615,21 +537,6 @@ export function VibeSparkApp() {
                   })
                 }
               />
-            ) : (
-              <section className="surface-subtle rounded-2xl p-8 sm:p-10 text-center space-y-3 border-dashed border-white/12">
-                <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-2xl bg-amber-400/12 text-amber-300">
-                  <Sparkles className="h-6 w-6" />
-                </div>
-                <h3 className="font-display text-lg font-semibold text-white">
-                  Pronto para sua próxima ideia de VibeCoding
-                </h3>
-                <p className="mx-auto max-w-lg text-sm text-zinc-400">
-                  Clique em <strong className="text-zinc-200">Gerar Vibe Blueprint</strong> para
-                  cruzar as tendências reais de hoje com seus filtros — ou aperte{" "}
-                  <strong className="text-emerald-300">Roleta (Me Surpreenda)</strong> para um
-                  sorteio aleatório instantâneo.
-                </p>
-              </section>
             )}
           </div>
         )}
@@ -653,15 +560,10 @@ export function VibeSparkApp() {
         )}
       </main>
 
-      {/* Footer */}
-      <footer className="border-t border-white/6 py-6 text-center text-xs text-zinc-500">
-        <div className="mx-auto max-w-6xl px-4 flex flex-col sm:flex-row items-center justify-between gap-2">
-          <span>VibeSpark — Gerador de Ideias para VibeCoding</span>
-          <span>
-            Dica: adicione <code className="font-mono text-zinc-400">GEMINI_API_KEY</code> ou{" "}
-            <code className="font-mono text-zinc-400">OPENAI_API_KEY</code> no{" "}
-            <code className="font-mono text-zinc-400">.env.local</code> para síntese com LLM.
-          </span>
+      <footer className="border-t border-zinc-900 py-5">
+        <div className="mx-auto max-w-4xl px-5 flex items-center justify-between text-[11px] font-mono text-zinc-600">
+          <span>VibeSpark</span>
+          <span>Hacker News · GitHub · Reddit · Hugging Face</span>
         </div>
       </footer>
     </div>
