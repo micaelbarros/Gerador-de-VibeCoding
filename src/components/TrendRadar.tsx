@@ -1,14 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import {
-  ArrowUpRight,
-  Flame,
-  Radio,
-  RefreshCw,
-  Search,
-  Sparkles,
-} from "lucide-react";
+import { ArrowRight, ArrowUpRight, RefreshCw, Search } from "lucide-react";
 import {
   NICHES,
   NicheId,
@@ -26,10 +19,10 @@ interface TrendRadarProps {
 }
 
 const SOURCE_FILTERS: { id: TrendSource | "all"; label: string }[] = [
-  { id: "all", label: "Todas as fontes" },
+  { id: "all", label: "Todas" },
   { id: "hackernews", label: "Hacker News" },
-  { id: "github", label: "GitHub Trending" },
-  { id: "reddit", label: "Reddit (Dores)" },
+  { id: "github", label: "GitHub" },
+  { id: "reddit", label: "Reddit" },
   { id: "huggingface", label: "Hugging Face" },
 ];
 
@@ -57,22 +50,14 @@ export function TrendRadar({
   }, [feed, sourceFilter, nicheFilter, query]);
 
   return (
-    <div className="space-y-5">
-      {/* Header status bar */}
-      <div className="surface-card rounded-2xl p-5 flex flex-col md:flex-row md:items-center justify-between gap-4">
-        <div className="space-y-1">
-          <div className="flex items-center gap-2">
-            <Radio className="h-4 w-4 text-emerald-400 animate-live-dot" />
-            <h2 className="font-display text-xl font-bold text-white">
-              Radar de Tendências Ao Vivo
-            </h2>
-          </div>
-          <p className="text-sm text-zinc-400">
-            Sinais coletados em tempo real de{" "}
-            <span className="text-zinc-200 font-medium">
-              {feed?.sourcesActive.join(", ") || "Hacker News, GitHub, Reddit e Hugging Face"}
-            </span>
-            . Clique em qualquer sinal para gerar um Blueprint baseado nele.
+    <div className="space-y-8">
+      <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4">
+        <div className="space-y-1.5">
+          <h1 className="font-display text-2xl sm:text-3xl font-semibold tracking-tight text-white">
+            Radar de tendências
+          </h1>
+          <p className="text-sm text-zinc-500">
+            Fontes ativas: {feed?.sourcesActive.join(" · ") || "carregando..."}
           </p>
         </div>
 
@@ -80,50 +65,50 @@ export function TrendRadar({
           type="button"
           onClick={onRefresh}
           disabled={isLoading}
-          className="inline-flex items-center justify-center gap-2 rounded-xl border border-emerald-500/30 bg-emerald-500/15 px-4 py-2.5 text-sm font-semibold text-emerald-200 hover:bg-emerald-500/25 transition cursor-pointer disabled:opacity-50 shrink-0"
+          className="inline-flex items-center gap-2 rounded-md border border-zinc-800 px-3.5 py-2 text-xs font-medium text-zinc-300 hover:border-zinc-600 hover:text-white transition cursor-pointer disabled:opacity-40 self-start"
         >
-          <RefreshCw className={`h-4 w-4 ${isLoading ? "animate-spin" : ""}`} />
-          {isLoading ? "Coletando sinais..." : "Atualizar Scraping"}
+          <RefreshCw className={`h-3.5 w-3.5 ${isLoading ? "animate-spin" : ""}`} />
+          {isLoading ? "Atualizando..." : "Atualizar"}
         </button>
       </div>
 
-      {/* Filters */}
-      <div className="surface-subtle rounded-2xl p-4 space-y-3">
-        <div className="flex flex-col sm:flex-row gap-3">
+      {/* Controls */}
+      <div className="space-y-3">
+        <div className="flex flex-col sm:flex-row gap-2.5">
           <div className="relative flex-1">
-            <Search className="h-4 w-4 text-zinc-500 absolute left-3 top-1/2 -translate-y-1/2" />
+            <Search className="h-3.5 w-3.5 text-zinc-600 absolute left-3 top-1/2 -translate-y-1/2" />
             <input
               type="text"
               value={query}
               onChange={(e) => setQuery(e.target.value)}
-              placeholder="Filtrar tendências por palavra-chave (ex: ai, saas, health, chrome)..."
-              className="w-full rounded-xl border border-white/10 bg-black/35 pl-9 pr-3 py-2 text-sm text-zinc-100 placeholder:text-zinc-500 focus:border-amber-400/50 focus:outline-none"
+              placeholder="Buscar tendência..."
+              className="w-full rounded-md border border-zinc-800 bg-black pl-9 pr-3 py-2 text-sm text-zinc-200 placeholder:text-zinc-600 focus:border-zinc-500 focus:outline-none"
             />
           </div>
 
           <select
             value={nicheFilter}
             onChange={(e) => setNicheFilter(e.target.value as NicheId)}
-            className="rounded-xl border border-white/10 bg-[#10141d] px-3 py-2 text-sm text-zinc-100 focus:border-amber-400/50 focus:outline-none"
+            className="rounded-md border border-zinc-800 bg-black px-3 py-2 text-sm text-zinc-300 focus:border-zinc-500 focus:outline-none"
           >
             {NICHES.map((n) => (
-              <option key={n.id} value={n.id}>
+              <option key={n.id} value={n.id} className="bg-black text-zinc-200">
                 {n.label}
               </option>
             ))}
           </select>
         </div>
 
-        <div className="flex flex-wrap gap-2">
+        <div className="flex flex-wrap gap-1.5">
           {SOURCE_FILTERS.map((sf) => (
             <button
               key={sf.id}
               type="button"
               onClick={() => setSourceFilter(sf.id)}
-              className={`rounded-full px-3 py-1 text-xs font-medium border transition cursor-pointer ${
+              className={`rounded-full px-3 py-1 text-xs transition cursor-pointer ${
                 sourceFilter === sf.id
-                  ? "border-amber-400/50 bg-amber-400/15 text-amber-200"
-                  : "border-white/8 bg-white/[0.03] text-zinc-400 hover:text-zinc-200"
+                  ? "bg-white text-black font-medium"
+                  : "text-zinc-500 hover:text-zinc-200"
               }`}
             >
               {sf.label}
@@ -132,88 +117,57 @@ export function TrendRadar({
         </div>
       </div>
 
-      {/* Grid of signals */}
+      {/* Minimal feed list */}
       {isLoading && !feed ? (
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          {Array.from({ length: 6 }).map((_, i) => (
-            <div
-              key={i}
-              className="surface-card rounded-2xl p-5 h-44 animate-pulse bg-white/[0.03]"
-            />
+        <div className="space-y-4">
+          {Array.from({ length: 5 }).map((_, i) => (
+            <div key={i} className="h-16 border-b border-zinc-900 animate-pulse" />
           ))}
         </div>
       ) : filteredSignals.length === 0 ? (
-        <div className="surface-card rounded-2xl p-10 text-center text-zinc-400 text-sm">
-          Nenhuma tendência encontrada com esses filtros. Tente limpar a busca ou mudar o nicho.
-        </div>
+        <p className="py-12 text-center text-sm text-zinc-500">
+          Nenhuma tendência encontrada para esse filtro.
+        </p>
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div className="divide-y divide-zinc-900 border-t border-zinc-900">
           {filteredSignals.map((sig) => (
             <div
               key={sig.id}
-              className="surface-card rounded-2xl p-5 flex flex-col justify-between gap-4 hover:border-amber-400/30 transition"
+              className="py-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4"
             >
-              <div className="space-y-2.5">
-                <div className="flex items-center justify-between gap-2">
-                  <div className="flex items-center gap-2 text-xs">
-                    <span className="font-semibold text-amber-300">{sig.sourceLabel}</span>
-                    {sig.isLive ? (
-                      <span className="rounded bg-emerald-500/15 px-1.5 py-0.5 text-[10px] font-medium text-emerald-300">
-                        AO VIVO
-                      </span>
-                    ) : (
-                      <span className="rounded bg-zinc-700/60 px-1.5 py-0.5 text-[10px] font-medium text-zinc-300">
-                        CURADO
-                      </span>
-                    )}
-                  </div>
-
-                  <span className="inline-flex items-center gap-1 rounded-full bg-amber-400/10 border border-amber-400/20 px-2 py-0.5 text-[11px] font-mono text-amber-300">
-                    <Flame className="h-3 w-3" />
-                    {sig.heatScore}
-                  </span>
-                </div>
-
-                <h3 className="font-display text-base font-semibold text-zinc-100 leading-snug">
-                  {sig.title}
-                </h3>
-
-                <p className="text-xs sm:text-sm text-zinc-400 leading-relaxed line-clamp-3">
-                  {sig.summary}
-                </p>
-
-                <div className="flex flex-wrap gap-1.5 pt-1">
-                  {sig.niches.map((n) => (
-                    <span
-                      key={n}
-                      className="rounded-md bg-white/5 border border-white/8 px-2 py-0.5 text-[11px] text-zinc-300"
-                    >
-                      {getNicheLabel(n)}
-                    </span>
+              <div className="space-y-1.5 min-w-0">
+                <div className="flex flex-wrap items-center gap-2 font-mono text-[11px] text-zinc-500">
+                  <span className="text-zinc-300">{sig.sourceLabel}</span>
+                  <span>·</span>
+                  <span>Score {sig.heatScore}</span>
+                  {sig.niches.slice(0, 2).map((n) => (
+                    <span key={n}>· {getNicheLabel(n)}</span>
                   ))}
                 </div>
-              </div>
 
-              <div className="flex items-center justify-between gap-2 pt-3 border-t border-white/6">
                 <a
                   href={sig.url}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="inline-flex items-center gap-1 text-xs text-zinc-400 hover:text-zinc-200 transition"
+                  className="group inline-flex items-center gap-1.5 text-sm sm:text-base font-medium text-zinc-100 hover:text-white"
                 >
-                  Abrir fonte
-                  <ArrowUpRight className="h-3.5 w-3.5" />
+                  <span>{sig.title}</span>
+                  <ArrowUpRight className="h-3.5 w-3.5 shrink-0 text-zinc-600 group-hover:text-zinc-300" />
                 </a>
 
-                <button
-                  type="button"
-                  onClick={() => onGenerateFromTrend(sig)}
-                  className="inline-flex items-center gap-1.5 rounded-lg bg-amber-400/15 border border-amber-400/35 px-3 py-1.5 text-xs font-semibold text-amber-200 hover:bg-amber-400 hover:text-zinc-950 transition cursor-pointer"
-                >
-                  <Sparkles className="h-3.5 w-3.5" />
-                  Vibecodar essa tendência
-                </button>
+                <p className="text-xs sm:text-sm text-zinc-500 line-clamp-2 max-w-2xl">
+                  {sig.summary}
+                </p>
               </div>
+
+              <button
+                type="button"
+                onClick={() => onGenerateFromTrend(sig)}
+                className="inline-flex items-center gap-1.5 rounded-md border border-zinc-800 px-3 py-1.5 text-xs font-medium text-zinc-300 hover:border-white hover:bg-white hover:text-black transition cursor-pointer shrink-0 self-start sm:self-center"
+              >
+                Gerar ideia
+                <ArrowRight className="h-3.5 w-3.5" />
+              </button>
             </div>
           ))}
         </div>
