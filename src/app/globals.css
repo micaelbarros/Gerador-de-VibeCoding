@@ -1,0 +1,44 @@
+@import "tailwindcss";
+
+@theme inline {
+  --font-sans: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
+  --font-display: var(--font-display), ui-sans-serif, system-ui, sans-serif;
+  --font-mono: var(--font-mono), ui-monospace, SFMono-Regular, monospace;
+}
+
+@layer base {
+  body {
+    background-color: #0a0c10;
+    background-image:
+      radial-gradient(ellipse 80% 50% at 50% -15%, rgba(245, 158, 11, 0.11), transparent),
+      radial-gradient(ellipse 60% 45% at 85% 15%, rgba(16, 185, 129, 0.08), transparent);
+    background-attachment: fixed;
+  }
+}
+
+.font-display {
+  font-family: var(--font-display), ui-sans-serif, system-ui, sans-serif;
+}
+
+.surface-card {
+  background: linear-gradient(180deg, rgba(22, 26, 35, 0.92) 0%, rgba(15, 18, 25, 0.96) 100%);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.surface-subtle {
+  background: rgba(18, 22, 30, 0.72);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+@keyframes subtle-pulse {
+  0%, 100% {
+    opacity: 0.65;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+
+.animate-live-dot {
+  animation: subtle-pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
