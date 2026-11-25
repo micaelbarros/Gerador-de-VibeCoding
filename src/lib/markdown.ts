@@ -1,4 +1,12 @@
-import { VibeBlueprint, MODE_META, getNicheLabel, getFormatLabel, getTimeframeLabel, getLevelLabel, getAudienceLabel } from "./types";
+import {
+  VibeBlueprint,
+  MODE_META,
+  getNicheLabel,
+  getFormatLabel,
+  getTimeframeLabel,
+  getLevelLabel,
+  getAudienceLabel,
+} from "./types";
 
 export function blueprintToMarkdown(bp: VibeBlueprint): string {
   const modeMeta = MODE_META[bp.mode];
@@ -7,64 +15,68 @@ export function blueprintToMarkdown(bp: VibeBlueprint): string {
     "",
     `> ${bp.tagline}`,
     "",
-    `- **Modo:** ${modeMeta.label}`,
-    `- **Nicho:** ${getNicheLabel(bp.niche)}`,
+    `- **Objetivo:** ${modeMeta.label}`,
+    `- **Tema:** ${getNicheLabel(bp.niche)}`,
     `- **Formato:** ${getFormatLabel(bp.format)}`,
-    `- **Tempo Estimado:** ${getTimeframeLabel(bp.timeframe)}`,
+    `- **Tempo estimado:** ${getTimeframeLabel(bp.timeframe)}`,
     `- **Nível:** ${getLevelLabel(bp.level)}`,
-    `- **Público-alvo:** ${getAudienceLabel(bp.audience)}`,
-    `- **Score de Oportunidade:** ${bp.opportunityScore}/100`,
+    `- **Público:** ${getAudienceLabel(bp.audience)}`,
+    `- **Força da oportunidade:** ${bp.opportunityScore}/100`,
     "",
     "---",
     "",
-    "## Por que agora? (Tendência Real)",
+    "## Por que faz sentido agora",
     bp.whyNow,
     "",
-    "### Fontes coletadas",
-    ...bp.sources.map((s) => `- **${s.sourceLabel}** (${s.heatScore}/100): [${s.title}](${s.url})`),
+    "### Referências do momento",
+    ...bp.sources.map((s) => `- **${s.sourceLabel}**: [${s.title}](${s.url})`),
     "",
-    "## Problema & Público-alvo",
-    `**Dor:** ${bp.problem}`,
+    "## Problema e para quem é",
+    `**Problema:** ${bp.problem}`,
     "",
-    `**Persona:** ${bp.targetPersona}`,
+    `**Para quem é:** ${bp.targetPersona}`,
     "",
-    "## Solução Proposta",
+    "## Como funciona",
     bp.solutionSummary,
     "",
-    "## Potencial de Monetização",
+    "## Como pode gerar renda",
     `- **Potencial:** ${bp.monetization.potential}`,
-    `- **Modelo:** ${bp.monetization.model}`,
-    `- **Ticket Sugerido:** ${bp.monetization.suggestedPrice}`,
-    `- **Primeiro Canal de Aquisição:** ${bp.monetization.firstChannel}`,
+    `- **Formato de cobrança:** ${bp.monetization.model}`,
+    `- **Preço sugerido:** ${bp.monetization.suggestedPrice}`,
+    `- **Onde conseguir os primeiros usuários:** ${bp.monetization.firstChannel}`,
     `- **Por que pagariam:** ${bp.monetization.whyPeoplePay}`,
     "",
-    "## Escopo do MVP (Construa só isso primeiro)",
+    "## O que construir primeiro (versão inicial)",
     ...bp.mvpFeatures.map((f) => `- [ ] ${f}`),
     "",
-    "## O que NÃO construir na v1 (Anti-Escopo)",
-    ...bp.antiScope.map((a) => `- ❌ ${a}`),
+    "## Deixe para depois",
+    ...bp.antiScope.map((a) => `- ${a}`),
     "",
-    "## Stack Recomendada",
+    "## Tecnologias sugeridas",
     bp.suggestedStack.map((s) => `\`${s}\``).join(" · "),
     "",
   ];
 
   if (bp.hackathonHook) {
-    lines.push("## Diferencial para Demo / Hackathon", bp.hackathonHook, "");
+    lines.push("## Como impressionar na apresentação", bp.hackathonHook, "");
   }
 
   if (bp.creativeConstraint) {
-    lines.push("## Restrição Criativa do Desafio", bp.creativeConstraint, "");
+    lines.push("## Desafio extra", bp.creativeConstraint, "");
   }
 
   if (bp.learningGoals && bp.learningGoals.length > 0) {
-    lines.push("## O que você vai dominar construindo isso", ...bp.learningGoals.map((g) => `- ${g}`), "");
+    lines.push(
+      "## O que você vai aprender",
+      ...bp.learningGoals.map((g) => `- ${g}`),
+      ""
+    );
   }
 
   lines.push(
     "---",
     "",
-    "## Prompt Mestre para VibeCoding",
+    "## Prompt pronto para começar com IA",
     "",
     "```text",
     bp.masterPrompt,
