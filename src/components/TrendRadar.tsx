@@ -20,6 +20,7 @@ interface TrendRadarProps {
 
 const SOURCE_FILTERS: { id: TrendSource | "all"; label: string }[] = [
   { id: "all", label: "Todas" },
+  { id: "tabnews", label: "TabNews (BR)" },
   { id: "hackernews", label: "Hacker News" },
   { id: "github", label: "GitHub" },
   { id: "reddit", label: "Reddit" },
@@ -139,7 +140,7 @@ export function TrendRadar({
                 <div className="flex flex-wrap items-center gap-2 font-mono text-[11px] text-zinc-500">
                   <span className="text-zinc-300">{sig.sourceLabel}</span>
                   <span>·</span>
-                  <span>Score {sig.heatScore}</span>
+                  <span>Em alta {sig.heatScore}/100</span>
                   {sig.niches.slice(0, 2).map((n) => (
                     <span key={n}>· {getNicheLabel(n)}</span>
                   ))}

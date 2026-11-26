@@ -59,7 +59,7 @@ export function SavedBoard({
       .replace(/[^a-z0-9]+/g, "-")
       .replace(/(^-|-$)/g, "");
     a.href = url;
-    a.download = `${slug || "vibe-blueprint"}-PRD.md`;
+    a.download = `${slug || "ideia-vibecoding"}-resumo.md`;
     a.click();
     URL.revokeObjectURL(url);
   }
@@ -166,7 +166,7 @@ export function SavedBoard({
                   <button
                     type="button"
                     onClick={() => handleDownload(bp)}
-                    title="Baixar PRD.md"
+                    title="Baixar resumo (.md)"
                     className="rounded-md border border-zinc-800 p-1.5 text-zinc-400 hover:border-zinc-600 hover:text-white transition cursor-pointer"
                   >
                     <Download className="h-3.5 w-3.5" />

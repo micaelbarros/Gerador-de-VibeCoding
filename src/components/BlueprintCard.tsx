@@ -32,10 +32,10 @@ interface BlueprintCardProps {
 }
 
 const PIVOT_BUTTONS: { action: PivotAction; label: string }[] = [
-  { action: "simpler", label: "Mais simples (2h)" },
-  { action: "b2b", label: "Focar em B2B" },
-  { action: "extension", label: "Virar extensão" },
-  { action: "monetize", label: "Mais rentável" },
+  { action: "simpler", label: "Versão mais simples (2h)" },
+  { action: "b2b", label: "Para empresas" },
+  { action: "extension", label: "Como extensão" },
+  { action: "monetize", label: "Foco em renda" },
 ];
 
 export function BlueprintCard({
@@ -71,7 +71,7 @@ export function BlueprintCard({
       .replace(/[^a-z0-9]+/g, "-")
       .replace(/(^-|-$)/g, "");
     a.href = url;
-    a.download = `${slug || "vibe-blueprint"}-PRD.md`;
+    a.download = `${slug || "ideia-vibecoding"}-resumo.md`;
     a.click();
     URL.revokeObjectURL(url);
   }
@@ -96,7 +96,7 @@ export function BlueprintCard({
             <span>/</span>
             <span>{getLevelLabel(blueprint.level)}</span>
             <span>/</span>
-            <span className="text-zinc-300">Score {blueprint.opportunityScore}</span>
+            <span className="text-zinc-300">Em alta {blueprint.opportunityScore}/100</span>
           </div>
 
           <div className="flex items-center gap-1.5">
@@ -138,7 +138,7 @@ export function BlueprintCard({
               className="inline-flex items-center gap-1.5 rounded-md border border-zinc-800 px-2.5 py-1.5 text-xs text-zinc-300 hover:border-zinc-600 hover:text-white transition cursor-pointer"
             >
               <Download className="h-3.5 w-3.5" />
-              PRD.md
+              Baixar .md
             </button>
           </div>
         </div>
@@ -156,7 +156,7 @@ export function BlueprintCard({
       {/* Why now + Sources */}
       <section className="space-y-4">
         <h3 className="font-mono text-[11px] uppercase tracking-widest text-zinc-500">
-          Por que agora
+          Por que faz sentido agora
         </h3>
         <p className="text-sm sm:text-[15px] text-zinc-300 leading-relaxed">
           {blueprint.whyNow}
@@ -189,17 +189,17 @@ export function BlueprintCard({
       <section className="grid grid-cols-1 md:grid-cols-2 gap-8">
         <div className="space-y-2.5">
           <h3 className="font-mono text-[11px] uppercase tracking-widest text-zinc-500">
-            Problema &amp; Público ({getAudienceLabel(blueprint.audience)})
+            Problema ({getAudienceLabel(blueprint.audience)})
           </h3>
           <p className="text-sm text-zinc-300 leading-relaxed">{blueprint.problem}</p>
           <p className="text-xs text-zinc-500 leading-relaxed">
-            Persona: {blueprint.targetPersona}
+            Para quem é: {blueprint.targetPersona}
           </p>
         </div>
 
         <div className="space-y-2.5">
           <h3 className="font-mono text-[11px] uppercase tracking-widest text-zinc-500">
-            Solução
+            Como funciona
           </h3>
           <p className="text-sm text-zinc-300 leading-relaxed">
             {blueprint.solutionSummary}
@@ -216,7 +216,7 @@ export function BlueprintCard({
       <section className="border border-zinc-900 rounded-xl p-5 bg-zinc-950/60 space-y-4">
         <div className="flex items-center justify-between gap-2">
           <h3 className="font-mono text-[11px] uppercase tracking-widest text-zinc-500">
-            Monetização
+            Como gerar renda
           </h3>
           <span className="font-mono text-xs text-zinc-300">
             Potencial: {blueprint.monetization.potential}
@@ -225,7 +225,7 @@ export function BlueprintCard({
 
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-5 text-sm">
           <div>
-            <div className="text-xs text-zinc-500">Modelo</div>
+            <div className="text-xs text-zinc-500">Formato de cobrança</div>
             <div className="mt-1 text-zinc-100 font-medium">
               {blueprint.monetization.model}
             </div>
@@ -235,14 +235,14 @@ export function BlueprintCard({
           </div>
 
           <div>
-            <div className="text-xs text-zinc-500">Por que pagam</div>
+            <div className="text-xs text-zinc-500">Por que pagariam</div>
             <p className="mt-1 text-zinc-300 text-xs sm:text-sm leading-relaxed">
               {blueprint.monetization.whyPeoplePay}
             </p>
           </div>
 
           <div>
-            <div className="text-xs text-zinc-500">Primeiros clientes</div>
+            <div className="text-xs text-zinc-500">Onde achar os primeiros usuários</div>
             <p className="mt-1 text-zinc-300 text-xs sm:text-sm leading-relaxed">
               {blueprint.monetization.firstChannel}
             </p>
@@ -254,7 +254,7 @@ export function BlueprintCard({
       <section className="grid grid-cols-1 md:grid-cols-2 gap-8">
         <div className="space-y-3">
           <h3 className="font-mono text-[11px] uppercase tracking-widest text-zinc-500">
-            Escopo do MVP
+            O que construir primeiro
           </h3>
           <ul className="space-y-2">
             {blueprint.mvpFeatures.map((feat, idx) => {
@@ -287,7 +287,7 @@ export function BlueprintCard({
 
         <div className="space-y-3">
           <h3 className="font-mono text-[11px] uppercase tracking-widest text-zinc-500">
-            Não construir na v1
+            Deixe para depois
           </h3>
           <ul className="space-y-2 text-sm text-zinc-500">
             {blueprint.antiScope.map((item, idx) => (
@@ -307,10 +307,10 @@ export function BlueprintCard({
         <section className="border-l-2 border-zinc-700 pl-4 space-y-1.5">
           <h3 className="font-mono text-[11px] uppercase tracking-widest text-zinc-500">
             {blueprint.hackathonHook
-              ? "Dica para demo (Hackathon)"
+              ? "Como apresentar no Hackathon"
               : blueprint.creativeConstraint
-                ? "Restrição criativa"
-                : "Foco de aprendizado"}
+                ? "Desafio extra"
+                : "O que você vai aprender"}
           </h3>
           {blueprint.hackathonHook && (
             <p className="text-sm text-zinc-300 leading-relaxed">
@@ -335,7 +335,7 @@ export function BlueprintCard({
       {/* Pivot strip */}
       <section className="flex flex-wrap items-center gap-2 pt-2">
         <span className="font-mono text-[11px] uppercase tracking-widest text-zinc-500 mr-2">
-          Pivotar:
+          Adaptar ideia:
         </span>
         {PIVOT_BUTTONS.map((btn) => (
           <button
@@ -354,7 +354,7 @@ export function BlueprintCard({
       <section className="border border-zinc-800 rounded-xl bg-[#050505] overflow-hidden">
         <div className="flex items-center justify-between gap-3 border-b border-zinc-900 px-4 py-3">
           <span className="font-mono text-xs text-zinc-400">
-            Prompt Mestre para VibeCoding
+            Prompt pronto para começar com IA
           </span>
 
           <button

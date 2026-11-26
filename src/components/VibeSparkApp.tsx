@@ -341,8 +341,8 @@ export function VibeSparkApp() {
                 Ideias atuais para vibecodar.
               </h1>
               <p className="text-sm sm:text-base text-zinc-500 max-w-xl">
-                Escolha o objetivo e o nicho. Cruzamos tendências reais de hoje para montar
-                seu escopo MVP e o prompt pronto.
+                Escolha o objetivo e o tema. Montamos uma ideia atual, o que fazer primeiro
+                e o prompt pronto para começar a programar com IA.
               </p>
             </section>
 
@@ -372,7 +372,7 @@ export function VibeSparkApp() {
               {/* Niche selector */}
               <div className="space-y-2.5">
                 <div className="font-mono text-[11px] uppercase tracking-widest text-zinc-600">
-                  Nicho
+                  Tema
                 </div>
                 <div className="flex flex-wrap gap-1.5">
                   {NICHES.map((n) => {
@@ -563,7 +563,7 @@ export function VibeSparkApp() {
       <footer className="border-t border-zinc-900 py-5">
         <div className="mx-auto max-w-4xl px-5 flex items-center justify-between text-[11px] font-mono text-zinc-600">
           <span>VibeSpark</span>
-          <span>Hacker News · GitHub · Reddit · Hugging Face</span>
+          <span>TabNews · Hacker News · GitHub · Reddit · Hugging Face</span>
         </div>
       </footer>
     </div>
